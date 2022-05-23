@@ -7,6 +7,7 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from functions import getDatabases, getTables, setActiveDatabase, getTableData
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -113,6 +114,61 @@ class Ui_Dialog(object):
         self.comboBox_3.setGeometry(QtCore.QRect(40, 10, 681, 16))
         self.comboBox_3.setObjectName("comboBox_3")
 
+        ### Punimo baze u Combobox 1
+        databases = getDatabases()
+        for database in databases:
+            self.comboBox.addItem(database[0])
+    
+        ### Biramo bazu 
+        def getSelectedDatabase():
+            selectedDatabase = self.comboBox.currentText()
+            onSelectedDatabase(selectedDatabase)
+
+        self.comboBox.activated.connect(getSelectedDatabase)
+
+        def onSelectedDatabase(imeBaze):
+            ## ocisti listu
+            self.comboBox_2.clear()
+
+            ## dodaj trenutnu
+            setActiveDatabase(imeBaze)
+            tables = getTables()
+            for table in tables:
+                self.comboBox_2.addItem(table[0])
+
+
+        ### Biramo tabelu
+        def getSelectedTable():
+            selectedTable = self.comboBox_2.currentText()
+            onSelectedTable(selectedTable)
+
+        self.comboBox_2.activated.connect(getSelectedTable)
+
+        def onSelectedTable(imeTabele):
+            ### povucemo data za trazeni table
+            data = getTableData(imeTabele)
+            print(data)
+            
+
+            num_rows = len(data)
+            # num_cols = len(columns) -- replace with column length
+            num_cols = 2
+
+            self.tableWidget.setRowCount(num_rows)
+            self.tableWidget.setColumnCount(num_cols)
+
+            
+            # self.tableWidget.setHorizontalHeaderLabels(columns)
+            print('--------------')
+            self.tableWidget.setHorizontalHeaderLabels(['id', 'ime', 'prezime'])            
+            for row in range(num_rows):
+                for column in range(num_cols):
+                    print(row, column)
+                    print(str(data[row][column]))
+                    self.tableWidget.setItem(row, column, QtWidgets.QTableWidget(str(data[row][column)))
+
+    
+        # self.pushButton_8.clicked.connect(load)
         self.retranslateUi(Dialog)
         self.tabWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
